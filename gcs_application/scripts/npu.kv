@@ -1,0 +1,49 @@
+<Container>:
+    orientation: 'vertical'
+    
+    butt_set_waypoint: set_waypoint
+    butt_set_home: set_home
+    butt_clear: clear
+    map_layer: map
+    butt_bar: butt_bar
+    paint_layer: paint_layer
+    
+    MapView:
+        id: map
+        lat: 47.201738
+        lon: 38.934003
+        zoom: 15
+        
+        Widget: 
+            id: paint_layer
+            size: (self.width, self.height)
+
+
+    BoxLayout:
+        id: butt_bar
+        # orientation: 'vertical'
+        size_hint: (1, 0.1)
+
+        Button:
+            id: set_waypoint
+            text: 'Set WayPoint'
+            size: (100, 50)
+            pos: (0, 0)
+            on_release: 
+                root.set_waypoint_cb()
+
+        Button:
+            id: set_home
+            text: 'Set Home'
+            size: (100, 50)
+            pos: (100, 0)
+            on_release: 
+                root.set_home_cb()
+
+        Button:
+            id: clear
+            text: 'Clear'
+            size: (100, 50)
+            pos: (200, 0)
+            on_release: 
+                root.clear_cb()
