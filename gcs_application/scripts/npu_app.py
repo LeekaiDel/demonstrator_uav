@@ -12,23 +12,52 @@ from kivy.graphics.instructions import InstructionGroup
 # from kivy.graphics.vertex_instructions import Line
 from kivy.clock import Clock
 import threading
+import zmq
+import pickle
+import msgs
 
 
 class Container(BoxLayout):
-    butt_set_waypoint = ObjectProperty()
-    butt_set_home = ObjectProperty()
-    butt_clear = ObjectProperty()
-    map_layer = ObjectProperty()
-    butt_bar = ObjectProperty()
-    paint_layer = ObjectProperty()
+    def __init__(self, **kwargs):
+        super(Container, self).__init__(**kwargs) 
+        """       
+        self.butt_set_waypoint
+        self.butt_set_home
+        self.butt_clear
+        self.map_layer
+        self.butt_bar
+        self.paint_layer
+        """
+        self.host_telemetry = "localhost"
+        self.port_telemetry = "5555"
+
+        self.drone_nav = msgs.Telemetry()
+        self.drone_marker = MapMarkerPopup(source = 'drone_icon.png')
+
+        self.rad = 10
+
+        self.set_waypoint = False
+        self.waypoint_array_gps = list()
+
+        telem_thrd = threading.Thread(target = self.telemetry_thread, daemon = True)
+        telem_thrd.start()
     
-    rad = 10
+    def telemetry_thread(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.REQ)
+        socket.connect("tcp://" + self.host_telemetry + ":" + self.port_telemetry)
+        print("Connect to server telemetry")
+        
+        while True:
+            socket.send(b"")
+            telemetry_massage = socket.recv()
+            telemetry_translate = pickle.loads(telemetry_massage)
+            self.drone_nav.latitude = telemetry_translate.latitude
+            self.drone_nav.longitude = telemetry_translate.longitude
+            self.drone_nav.azimute = telemetry_translate.azimute
 
-    set_waypoint = False
-    waypoint_array_gps = list()
-
-    # def my_callback(self, dt):
-    #     print("rrr")
+            # print(self.drone_nav)
+ 
 
     def on_touch_up(self, touch):
         if(self.set_waypoint) and (touch.button == 'left'):
@@ -44,23 +73,39 @@ class Container(BoxLayout):
 
 
     def draw_markers(self, dt):
+        # if self.drone_marker is not None:
+        #     self.map_layer.remove_marker(self.drone_marker)
         self.paint_layer.canvas.clear()
+        if self.drone_marker.lat == 0.0:
+            self.drone_marker.lat = self.drone_nav.latitude
+            self.drone_marker.lon = self.drone_nav.longitude
+
+            self.map_layer.add_marker(self.drone_marker)
+        
+        else:
+            self.drone_marker.lat = self.drone_nav.latitude
+            self.drone_marker.lon = self.drone_nav.longitude
+        self.map_layer.do_update(None)
+
         points = list()
         if(self.waypoint_array_gps):
             for marker in self.waypoint_array_gps:
                 points.append((marker.x + 5, marker.y + 5))
             with self.paint_layer.canvas:
-                Color(1, 0, 0, 1)
+                Color(0, 0, 1, 0.5)
                 # for point in points:
-                    # Ellipse(pos = (point[0] - self.rad / 2, point[1] - self.rad / 2), size = (self.rad, self.rad))
+                # Ellipse(pos = (point[0] - self.rad / 2, point[1] - self.rad / 2), size = (self.rad, self.rad))
                 Line(points = points, width = 2)
+
 
     def set_waypoint_cb(self):
         self.set_waypoint = not self.set_waypoint
         print("Press Set_WayPoint")
     
+
     def set_home_cb(self):
         print("Press Set_Home")
+
 
     def clear_cb(self):
         self.paint_layer.canvas.clear()
