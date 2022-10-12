@@ -4,7 +4,6 @@ import threading
 import msgs
 import pickle
 
-
 class RalTeleServer:
     def __init__(self):
         '''
