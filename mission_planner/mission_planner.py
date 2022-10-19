@@ -4,10 +4,13 @@ from zmq_wrapper_lib import Publisher, Subscriber
 
 def main():
     topic = "topic"
-    frequency = 10
+    frequency = 1
 
-    publish_point = Publisher(topic, frequency)
-    subscribe_recieve_pose = Subscriber(topic)
+    ip = "192.168.88.229"
+    port = "8080"
+
+    publish_point = Publisher(topic, frequency, ip, port)
+    subscribe_recieve_pose = Subscriber(topic, ip, port)
     publish_point.msg = Mission
 
 
