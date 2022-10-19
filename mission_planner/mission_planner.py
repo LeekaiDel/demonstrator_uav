@@ -9,8 +9,8 @@ def main():
     ip = "192.168.88.229"
     port = "8080"
 
-    publish_point = Publisher(topic, frequency, ip, port)
-    subscribe_recieve_pose = Subscriber(topic, ip, port)
+    publish_point = Publisher(frequency, ip, port)
+    subscribe_recieve_pose = Subscriber(ip, port)
     publish_point.msg = Mission
 
 
