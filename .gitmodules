@@ -1,0 +1,3 @@
+[submodule "mission_planner/mission_planner_lib"]
+	path = mission_planner/mission_planner_lib
+	url = https://github.com/Gearmaker/mission_planner_lib
