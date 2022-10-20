@@ -118,16 +118,15 @@ class Container(BoxLayout):
         print("Press Send Mission")
         if self.waypoint_array_gps:
             self.mission.time = time.time()
-            for i in range(len(self.waypoint_array_gps)):
-                self.mission.mission_waypoints["point_" + str(i)] = self.waypoint_array_gps[i] #
+            for point in self.waypoint_array_gps:
+                self.mission.mission_waypoints.append(msgs.GeoPoint(lat = point.lat, lon = point.lon)) #
 
             for point in self.mission.mission_waypoints:
                 print(point)
 
-            self.pub_mission.data_to_send = self.mission
-            print(1)
+            self.pub_mission.data_to_send = self.mission.toJSON()
             self.pub_mission.startClient()
-            print(2)
+            self.mission = msgs.Mission()
 
 
     def clear_cb(self):
@@ -135,7 +134,6 @@ class Container(BoxLayout):
         for marker in self.waypoint_array_gps:
             self.map_layer.remove_marker(marker)
         self.waypoint_array_gps.clear()
-        self.mission = msgs.Mission()
         print("Press Set_Clear")
 
 

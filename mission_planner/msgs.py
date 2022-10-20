@@ -12,7 +12,7 @@ class Mission():
     def __init__(self):
         self.origin = GeoPoint()
         self.mission_waypoints = list()
-        self.time_stamp = None
+        self.time = None
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
