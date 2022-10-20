@@ -28,13 +28,12 @@ class Subscriber:
 
 
 class Publisher:
-    def __init__(self, frequency, ip, port):
+    def __init__(self, ip, port):
         '''
         Create publisher to publish data
         @ ip - cpecifies adress of machine to which topic should be broadcasted
         @ port - cpecifies port to which data will be published
         '''
-        self.frequency = 1.0 / float(frequency)
 
         context = zmq.Context()
         self.publisher = context.socket(zmq.PUB)
@@ -43,10 +42,9 @@ class Publisher:
         self.publisher.connect(adress)
 
         self.msg = None
-        threading.Thread(target=self.startPublisher).start()
 
-    def publish(self):
-        self.publisher.send_pyobj(self.msg)
+    def publish(self, data):
+        self.publisher.send_pyobj(data)
         sleep(self.frequency)
 
 
@@ -57,14 +55,15 @@ class Service:
         context = zmq.Context().instance()
         url = "tcp://" + ip + ":" + port
 
-        self.recieved_data = ""
-        self.data_to_send = ""
+        self.recieved_data = None
+        self.data_to_send = None
 
         self.server = context.socket(zmq.REP)
         self.server.bind(url)
 
     def recieveData__(self):
         self.recieved_data = self.server.recv_pyobj()
+        # print(self.recieved_data)
 
     def reply__(self):
         self.server.send_pyobj(self.data_to_send)
@@ -85,8 +84,8 @@ class Client:
         context = zmq.Context().instance()
         url = "tcp://" + ip + ":" + port
 
-        self.recieved_data = ""
-        self.data_to_send = ""
+        self.recieved_data = None
+        self.data_to_send = None
 
         self.client = context.socket(zmq.REQ)
         self.client.connect(url)
@@ -96,7 +95,7 @@ class Client:
 
     def getRespose__(self):
         self.recieved_data = self.client.recv_pyobj()
-        print("GOT")
+        print("Got msg = ", self.recieved_data)
 
     def startClient(self):
         self.sendRequest__()
