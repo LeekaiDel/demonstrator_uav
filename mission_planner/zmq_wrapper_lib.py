@@ -2,7 +2,6 @@ from time import sleep
 import zmq
 from struct import *
 import threading
-import msgs
 
 
 class Subscriber:
@@ -46,7 +45,62 @@ class Publisher:
         self.msg = None
         threading.Thread(target=self.startPublisher).start()
 
-    def startPublisher(self):
+    def publish(self):
+        self.publisher.send_pyobj(self.msg)
+        sleep(self.frequency)
+
+
+class Service:
+    def __init__(self, ip="", port=""):
+        # recieved_data from client
+        # data_to_send to client
+        context = zmq.Context().instance()
+        url = "tcp://" + ip + ":" + port
+
+        self.recieved_data = ""
+        self.data_to_send = ""
+
+        self.server = context.socket(zmq.REP)
+        self.server.bind(url)
+
+    def recieveData__(self):
+        self.recieved_data = self.server.recv_pyobj()
+
+    def reply__(self):
+        self.server.send_pyobj(self.data_to_send)
+
+    def startService(self):
         while True:
-            self.publisher.send_pyobj(self.msg)
-            sleep(self.frequency)
+            self.recieveData__()
+            self.reply__()
+
+    def makeThead(self):
+        threading.Thread(target=self.startService).start()
+
+
+class Client:
+    def __init__(self, ip="", port=""):
+        # recieved_data from service
+        # data_to_send to service
+        context = zmq.Context().instance()
+        url = "tcp://" + ip + ":" + port
+
+        self.recieved_data = ""
+        self.data_to_send = ""
+
+        self.client = context.socket(zmq.REQ)
+        self.client.connect(url)
+
+    def sendRequest__(self):
+        self.client.send_pyobj(self.data_to_send)
+
+    def getRespose__(self):
+        self.recieved_data = self.client.recv_pyobj()
+        print("GOT")
+
+    def startClient(self):
+        self.sendRequest__()
+        self.getRespose__()
+
+    def makeThead(self):
+        threading.Thread(target=self.startClient).start()
