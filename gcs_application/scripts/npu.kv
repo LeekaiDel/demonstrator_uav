@@ -2,7 +2,7 @@
     orientation: 'vertical'
     
     butt_set_waypoint: set_waypoint
-    butt_set_home: set_home
+    butt_send: send
     butt_clear: clear
     map_layer: map
     butt_bar: butt_bar
@@ -33,12 +33,12 @@
                 root.set_waypoint_cb()
 
         Button:
-            id: set_home
-            text: 'Set Home'
+            id: send
+            text: 'Send Mission'
             size: (100, 50)
             pos: (100, 0)
             on_release: 
-                root.set_home_cb()
+                root.send_cb()
 
         Button:
             id: clear

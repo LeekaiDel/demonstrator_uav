@@ -11,18 +11,21 @@ from kivy.properties import ObjectProperty
 from kivy.graphics.instructions import InstructionGroup
 # from kivy.graphics.vertex_instructions import Line
 from kivy.clock import Clock
+import msgs
 import threading
 import zmq
 import pickle
 import msgs
-
+import time
+import zmq_wrapper_lib
+import json
 
 class Container(BoxLayout):
     def __init__(self, **kwargs):
         super(Container, self).__init__(**kwargs) 
         """       
         self.butt_set_waypoint
-        self.butt_set_home
+        self.butt_send
         self.butt_clear
         self.map_layer
         self.butt_bar
@@ -31,13 +34,21 @@ class Container(BoxLayout):
         self.host_telemetry = "localhost"
         self.port_telemetry = "5555"
 
+        self.host_mission_manager = "192.168.88.229" 
+        self.port_mission_manager = "8100"
+
         self.drone_nav = msgs.Telemetry()
         self.drone_marker = MapMarkerPopup(source = 'drone_icon.png')
-
+        
+        self.pub_mission = zmq_wrapper_lib.Client(ip = self.host_mission_manager, 
+                                                    port = self.port_mission_manager)
+        
         self.rad = 10
 
         self.set_waypoint = False
         self.waypoint_array_gps = list()
+        
+        self.mission = msgs.Mission()
 
         telem_thrd = threading.Thread(target = self.telemetry_thread, daemon = True)
         telem_thrd.start()
@@ -103,8 +114,20 @@ class Container(BoxLayout):
         print("Press Set_WayPoint")
     
 
-    def set_home_cb(self):
-        print("Press Set_Home")
+    def send_cb(self):
+        print("Press Send Mission")
+        if self.waypoint_array_gps:
+            self.mission.time = time.time()
+            for i in range(len(self.waypoint_array_gps)):
+                self.mission.mission_waypoints["point_" + str(i)] = self.waypoint_array_gps[i] #
+
+            for point in self.mission.mission_waypoints:
+                print(point)
+
+            self.pub_mission.data_to_send = self.mission
+            print(1)
+            self.pub_mission.startClient()
+            print(2)
 
 
     def clear_cb(self):
@@ -112,6 +135,7 @@ class Container(BoxLayout):
         for marker in self.waypoint_array_gps:
             self.map_layer.remove_marker(marker)
         self.waypoint_array_gps.clear()
+        self.mission = msgs.Mission()
         print("Press Set_Clear")
 
 
