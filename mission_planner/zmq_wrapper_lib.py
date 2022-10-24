@@ -2,6 +2,7 @@ from time import sleep
 import zmq
 from struct import *
 import threading
+import json
 
 
 class Subscriber:
@@ -45,13 +46,14 @@ class Publisher:
 
     def publish(self, data):
         self.publisher.send_pyobj(data)
-        sleep(self.frequency)
+        # sleep(self.frequency)
 
 
 class Service:
-    def __init__(self, ip="", port=""):
+    def __init__(self, ip="", port="", use_json=False):
         # recieved_data from client
         # data_to_send to client
+        self.use_JSON = use_json
         context = zmq.Context().instance()
         url = "tcp://" + ip + ":" + port
 
@@ -65,13 +67,22 @@ class Service:
         self.recieved_data = self.server.recv_pyobj()
         # print(self.recieved_data)
 
+    def recieveDataJSON__(self):
+        self.recieved_data = json.loads(self.server.recv_pyobj())
+        # print(self.recieved_data)
+
     def reply__(self):
         self.server.send_pyobj(self.data_to_send)
 
     def startService(self):
-        while True:
-            self.recieveData__()
-            self.reply__()
+        if self.use_JSON:
+            while True:
+                self.recieveDataJSON__()
+                self.reply__()
+        else:
+            while True:
+                self.recieveData__()
+                self.reply__()
 
     def makeThead(self):
         threading.Thread(target=self.startService).start()

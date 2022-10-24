@@ -30,7 +30,7 @@ class MissionManager:
         self.mission_counter = 0  # Номер следуещей команды
         pass
 
-    def __getMissionsCount(self):
+    def getMissionsCount(self):
         # Returns amount of missions in dict (self.missions)
         return len(self.missions)
 
@@ -68,7 +68,7 @@ class MissionManager:
 
     def chooseMissionByQueue(self):
         # Takes first mission from dictionary (self.missions)
-        keys_count = self.__getMissionsCount()
+        keys_count = self.getMissionsCount()
         if keys_count == 0:
             self.current_mission = None
         else:
