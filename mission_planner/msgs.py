@@ -1,4 +1,4 @@
-from pydoc import classname
+import json
 
 
 class GeoPoint():
@@ -9,9 +9,14 @@ class GeoPoint():
 
 
 class Mission():
-    origin = GeoPoint()
-    mission_waypoints = list()
-    time_stamp = None
+    def __init__(self):
+        self.origin = GeoPoint()
+        self.mission_waypoints = list()
+        self.time = None
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 
 class Telemetry():
