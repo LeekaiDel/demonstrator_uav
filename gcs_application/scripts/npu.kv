@@ -7,7 +7,8 @@
     map_layer: map
     butt_bar: butt_bar
     paint_layer: paint_layer
-    
+    lable: lable
+
     MapView:
         id: map
         lat: 47.201738
@@ -47,3 +48,9 @@
             pos: (200, 0)
             on_release: 
                 root.clear_cb()
+
+        Label:
+            id: lable
+            text: "lat: \nlon:"
+            text_size: (200, 50)
+            halign: "left"
