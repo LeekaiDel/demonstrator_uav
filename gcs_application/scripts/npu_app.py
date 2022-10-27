@@ -66,7 +66,9 @@ class Container(BoxLayout):
             self.drone_nav.latitude = telemetry_translate.latitude
             self.drone_nav.longitude = telemetry_translate.longitude
             self.drone_nav.azimute = telemetry_translate.azimute
-            self.lable.text = "lat: " + str(telemetry_translate.latitude) + "\n" + "lon: " + str(telemetry_translate.longitude)
+            self.lable.text = "Drone_lat: " + str(round(telemetry_translate.latitude, 9)) + "\n" + \
+                                "Drone_lon: " + str(round(telemetry_translate.longitude, 9)) + "\n" + \
+                                "Drone_alt: " + str(round(telemetry_translate.altitude, 9))
             # print(self.drone_nav)
  
 
