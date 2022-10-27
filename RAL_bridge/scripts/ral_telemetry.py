@@ -11,7 +11,7 @@ class RalTeleServer:
         '''
         self.client = zmq.Context()
         self.client_socket = self.client.socket(zmq.STREAM)  # client with stream type
-        self.client_socket.connect("tcp://192.168.166.11:4500")  # connect to ral ip  192.168.166.12:4500 -- 12 ral
+        self.client_socket.connect("tcp://192.168.166.12:4500")  # connect to ral ip  192.168.166.12:4500 -- 12 ral
 
         '''
         Create server to publish data from ral
