@@ -5,7 +5,7 @@ import threading
 import json
 
 
-class Subscriber:
+class Publisher:
     def __init__(self, ip, port):
         '''
         Create subscriber to read data
@@ -14,21 +14,19 @@ class Subscriber:
         '''
 
         context = zmq.Context()
-        self.subscriber = context.socket(zmq.SUB)
+        self.publisher = context.socket(zmq.PUB)
         adress = "tcp://" + ip + ":" + port
-        self.subscriber.bind(adress)
-        self.subscriber.setsockopt(zmq.SUBSCRIBE, b'')
+        self.publisher.bind(adress)
         self.msg = None
 
-        threading.Thread(target=self.startSubscription).start()
+        # threading.Thread(target=self.startSubscription).start()
 
-    def startSubscription(self):
-        while True:
-            self.msg = self.subscriber.recv_pyobj()
-            print(self.msg)
+    def publish(self, data):
+        self.publisher.send_pyobj(data)
+        # sleep(self.frequency)
 
 
-class Publisher:
+class Subscriber:
     def __init__(self, ip, port):
         '''
         Create publisher to publish data
@@ -37,16 +35,20 @@ class Publisher:
         '''
 
         context = zmq.Context()
-        self.publisher = context.socket(zmq.PUB)
+        self.subscriber = context.socket(zmq.SUB)
         adress = "tcp://" + ip + ":" + port
         print(adress)
-        self.publisher.connect(adress)
+        self.subscriber.setsockopt(zmq.SUBSCRIBE, b'')
+        self.subscriber.connect(adress)
+
 
         self.msg = None
+        threading.Thread(target=self.startSubscription).start()
 
-    def publish(self, data):
-        self.publisher.send_pyobj(data)
-        # sleep(self.frequency)
+    def startSubscription(self):
+        while True:
+            self.msg = self.subscriber.recv_pyobj()
+            # print(self.msg)
 
 
 class Service:

@@ -4,10 +4,10 @@ from mission_planner_lib.mission_manager_lib import Mission, MissionManager
 from msgs import GeoPoint
 from zmq_wrapper_lib import Service, Subscriber, Publisher
 
-IP_ROBOT_POSITION = "192.168.0.127"
-IP_NPU_COMMAND = "192.168.0.127"
+IP_ROBOT_POSITION = "192.168.166.100"
+IP_NPU_COMMAND = "192.168.166.100"
 
-PORT_ROBOT_POSITION_RECIEVE = "8080"
+PORT_ROBOT_POSITION_RECIEVE = "4502"
 PORT_ROBOT_POSITION_DESTINATION = "8090"
 PORT_NPU_COMMAND = "8100"
 
@@ -109,10 +109,10 @@ def main():
 
     mission = Mission()
 
-    # ZAGLUSKA
+    # # ZAGLUSKA
     robot_pose = GeoPoint(0, 0, 0)
     robot_position_subscriber.msg = robot_pose
-    ##
+    # ##
 
     while True:
         print("curent mission ID ", mission_manager.current_mission)
@@ -148,11 +148,12 @@ def main():
 
                 # Local planner ends here
 
-                # TODO: DELETE ZAGLUSHKA___
-                robot_pose = update_robot_pose(robot_pose, GeoPoint(
-                    goal_point.latitude, goal_point.longitude))
-                robot_position_subscriber.msg = robot_pose
-                # _____________
+                # # TODO: DELETE ZAGLUSHKA___
+                # robot_pose = update_robot_pose(robot_pose, GeoPoint(
+                #     goal_point.latitude, goal_point.longitude))
+                # robot_position_subscriber.msg = robot_pose
+                # # _____________
+
 
             if local_planner.trajectory_passed:
                 print(mission_manager.current_mission)

@@ -1,3 +1,6 @@
+import json
+
+
 class GeoPoint():
     def __init__(self, lat: float = 0.0, lon: float = 0.0, alt: float = 0.0):
         self.latitude = lat
@@ -6,8 +9,14 @@ class GeoPoint():
 
 
 class Mission():
-    origin = GeoPoint()
-    mission_waypoints = list()
+    def __init__(self):
+        self.origin = GeoPoint()
+        self.mission_waypoints = list()
+        self.time = None
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
 
 class Telemetry():
@@ -17,4 +26,3 @@ class Telemetry():
         self.altitude = alt
         self.azimute = azimute
         self.home_point = home_point
-
