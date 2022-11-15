@@ -1,6 +1,8 @@
 # demonstrator_uav
 
 RALs IP,ID:
+
+
 '192.168.166.12'  2070360064
 
 
