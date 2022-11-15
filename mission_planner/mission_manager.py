@@ -9,7 +9,7 @@ import utm
 IP_ROBOT_POSITION = "192.168.166.100"
 IP_NPU_COMMAND = "192.168.166.100"
 
-PORT_ROBOT_POSITION_RECIEVE = "4502"
+PORT_ROBOT_POSITION_RECIEVE = "4501"
 PORT_ROBOT_POSITION_DESTINATION = "8090"
 PORT_NPU_COMMAND = "8100"
 
@@ -23,7 +23,7 @@ def lla_to_utm(lla_point_x,lla_point_y):
     """
     u = utm.from_latlon(lla_point_x, lla_point_y)
 
-    return [u[0], [1]]
+    return u[0], u[1]
 
 def convertDictToGeopoint(point: dict):
     return GeoPoint(point.get("latitude"), point.get("longitude"))
@@ -35,11 +35,13 @@ def getDistBetweenGeopoints(point1: GeoPoint, point2: GeoPoint):
 
     dx = p1[0] - p2[0]
     dy = p1[1] - p2[1]
-    return math.sqrt(dx**2 + dy**2)
+    dist = math.sqrt(dx ** 2 + dy ** 2)
+    print("Dist to current wp = ",dist)
+    return dist
 
 
 class PositionalLocalPlanner:
-    def __init__(self, initial_point_idx=0, trajectory_len=0, switch_dist=0.5):
+    def __init__(self, initial_point_idx=0, trajectory_len=0, switch_dist=2.0):
         self.current_point_idx_in_traj = initial_point_idx
         self.trajectory_len = trajectory_len
         self.trajectory_passed = False
@@ -105,6 +107,16 @@ def update_robot_pose(robot_pose, target_pose):
         (target_pose.longitude - robot_pose.longitude) / 2.0
     return robot_pose
 
+def filter_coords(robot_pose_lat_lon: GeoPoint):
+    if robot_pose_lat_lon.longitude >= 180:
+        robot_pose_lat_lon.longitude = 180
+    if robot_pose_lat_lon.longitude <= -180:
+        robot_pose_lat_lon.longitude = -180
+    if robot_pose_lat_lon.latitude <= -80:
+        robot_pose_lat_lon.latitude = -80
+    if robot_pose_lat_lon.latitude >= 84:
+        robot_pose_lat_lon.latitude = 84
+    return robot_pose_lat_lon
 
 def main():
 
@@ -153,8 +165,16 @@ def main():
                     "mission_waypoints")[local_planner.current_point_idx_in_traj]
                 goal_point = convertDictToGeopoint(goal_geopoint_from_dict)
 
+                robot_pose_lat_lon = filter_coords(robot_position_subscriber.msg)
+
+                print("robot_pose_lat",robot_pose_lat_lon.latitude)
+                print("robot_pose_lon",robot_pose_lat_lon.longitude)
+
+                print("goal_pose_lat",goal_point.latitude)
+                print("goal_pose_lon",goal_point.longitude)
+
                 dist = getDistBetweenGeopoints(
-                    robot_position_subscriber.msg,  goal_point)
+                    robot_pose_lat_lon,  goal_point)
 
                 local_planner.changeCurrentPointIdxByDistance(dist)
                 # publish point to move if mission is not empty
@@ -172,7 +192,7 @@ def main():
 
 
             if local_planner.trajectory_passed:
-                print(mission_manager.current_mission)
+                # print(mission_manager.current_mission)
                 mission_manager.deleteMission(
                     mission_manager.current_mission)
                 mission = None
@@ -182,7 +202,7 @@ def main():
             print("point in traj to follow",
                   local_planner.current_point_idx_in_traj)
 
-        sleep(0.1)
+        sleep(0.5)
 
 
 if __name__ == "__main__":
