@@ -3,34 +3,45 @@ from struct import *
 import zmq
 import threading
 from zmq_wrapper_lib import Subscriber
+import socket
 
 
 class RalPoint:
     def __init__(self):
-        self.identify_drone = 2070360064
+        self.identify_drone = 2120691968
 
-        self.ral_client = zmq.Context()
-        self.point_to_ral_client = self.ral_client.socket(zmq.PUB)
-        self.point_to_ral_client.connect("tcp://192.168.166.12:4500")
+        # self.ral_client = zmq.Context()
+        # self.point_to_ral_client = self.ral_client.socket(zmq.PUB)
+        # self.point_to_ral_client.connect("tcp://192.168.166.11:4500")
 
         # self.client = zmq.Context()
         # self.point_client = self.client.socket(zmq.SUB)
         # adress = "tcp://192.168.88.182:8090"
 
-        self.point_sub = Subscriber("192.168.166.100","8090")
+        self.point_sub = Subscriber("192.168.166.100", "8090")
 
+        self.HOST = '192.168.166.11'
+        self.PORT = 4500
+
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.connect((self.HOST, self.PORT))
 
         # self.point_client.bind(adress)
         # self.point_client.setsockopt(zmq.SUBSCRIBE, b'')
         # self.msg = None
+        self.old_msg = 0
 
         while True:
             if self.point_sub.msg is not None:
                 self.msg = self.point_sub.msg
-                latitude = round(self.msg.get("latitude"), 6)
-                longitude = round(self.msg.get("longitude"), 6)
 
-                self.do_point(latitude, longitude)
+                if self.msg != self.old_msg:
+                    latitude = round(self.msg.get("latitude"), 6)
+                    longitude = round(self.msg.get("longitude"), 6)
+
+                    self.do_point(latitude, longitude)
+                    print('sended')
+                    self.old_msg = self.msg
 
 
         # self.point_client.connect("tcp://192.168.88.182:8090")  # TODO ip port
@@ -45,12 +56,12 @@ class RalPoint:
 
     def do_point(self, lat, lon):
         data_pack = pack('=4c3B2fBHBI', b'A', b'E', b'N', b'T', 1, 13, 206, lat, lon, 1, 0, 51, self.identify_drone)
-        print(data_pack)
+        # print(data_pack)
         # data_pack_1 = unpack('=4c3B2fBHBI', data_pack)
         # print(data_pack_1)
         send_data = self.add_crc(data_pack)
 
-        self.point_to_ral_client.send(send_data)
+        self.s.sendall(send_data)
 
 
 # def cmd_move():

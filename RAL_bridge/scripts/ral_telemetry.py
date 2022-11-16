@@ -65,7 +65,7 @@ class RalTeleServer:
                 if self.data_all[5] == 81 and self.data_all[8] == 37 and int(crc) == int(crc_in[0]):
                     self.telemetry_raw = unpack('=4cBBHBIHHIi5h5B4H6fH4B2H2B2HBI', self.data_all)
 
-                    self.telemetry.latitude = self.telemetry_raw[29]
+                    self.telemetry.latitude = self.telemetry_raw[27]
                     self.telemetry.longitude = self.telemetry_raw[28]
                     # print(self.telemetry.latitude)
                     # print(self.telemetry.longitude)
