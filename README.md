@@ -54,9 +54,17 @@ python3 ral_point.py
 ![Screenshot from 2022-10-10 10-32-41](https://user-images.githubusercontent.com/78022926/194817289-d7288a5e-96b7-4c91-86b1-9245f7839ec3.png)
 
 
-# Подключение по SSH
+# Включение системы RAL
+## Подключение питания RAL
+![image](resources/drone.png)
 
-Чтобы зайти на Nx:
+## Подключение компонентов связи с НСУ
+![image](resources/connection.png)
+
+
+# Подключение к бортовым блокам (корзина)
+
+Чтобы зайти на Nx через SSH:
 ```bash
 ssh nx1@<адрес дрона>
 ```
